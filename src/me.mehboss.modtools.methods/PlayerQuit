@@ -1,0 +1,28 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class PlayerQuit implements Listener {
+
+	private ModTools plugin;
+
+	public PlayerQuit(ModTools plugin) {
+		this.plugin = plugin;
+	}
+
+	@EventHandler
+	public void onQuit(PlayerQuitEvent e) {
+		Player p = e.getPlayer();
+
+		if (plugin.inmod.contains(p)) {
+			plugin.inmod.remove(p);
+			e.getPlayer().getInventory().clear();
+			e.getPlayer().getInventory().setArmorContents(null);
+		}
+	}
+}
