@@ -1,0 +1,36 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class ItemPickup implements Listener {
+	
+	private ModTools plugin;
+
+	public ItemPickup(ModTools plugin) {
+		this.plugin = plugin;
+	}
+
+	@EventHandler
+	public void onItemPickup(PlayerPickupItemEvent e) {
+		Player p = e.getPlayer();
+
+		if (plugin.inmod.contains(p)) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onItemDrop(PlayerDropItemEvent e) {
+		Player p = e.getPlayer();
+		
+		if (plugin.inmod.contains(p)) {
+			e.setCancelled(true);
+		}
+	}
+}
