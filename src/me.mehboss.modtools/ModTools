@@ -1,0 +1,65 @@
+package me.mehboss.modtools;
+
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import me.mehboss.modtools.commands.CMD_ModTools;
+import me.mehboss.modtools.commands.CMD_StaffChat;
+import me.mehboss.modtools.methods.BreakBlocks;
+import me.mehboss.modtools.methods.InvMove;
+import me.mehboss.modtools.methods.InventoryClick;
+import me.mehboss.modtools.methods.ItemPickup;
+import me.mehboss.modtools.methods.PlayerAttack;
+import me.mehboss.modtools.methods.PlayerJoin;
+import me.mehboss.modtools.methods.PlayerQuit;
+import net.md_5.bungee.api.ChatColor;
+
+public class ModTools extends JavaPlugin {
+
+	public String prefixcolored = ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("Prefix"));
+	
+	Logger log = Bukkit.getLogger();
+
+	public ArrayList<Player> inmod = new ArrayList<>();
+	public ArrayList<Player> pvanish = new ArrayList<>();
+
+	public ItemStack stick = new ItemStack(Material.STICK);
+	public ItemStack bRod = new ItemStack(Material.BLAZE_ROD);
+	public ItemStack steve = new ItemStack(Material.SKULL_ITEM, 1);
+	public ItemStack greenDye = new ItemStack(Material.INK_SACK, 1);
+	public ItemStack grayDye = new ItemStack(Material.INK_SACK, 1);
+	public ItemStack clock = new ItemStack(Material.WATCH);
+	public ItemStack feather = new ItemStack(Material.FEATHER);
+
+	public String noperm = ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("Messages.No-Perms"));
+
+	private void registerConfig() {
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+		getLogger();
+	}
+
+	@Override
+	public void onEnable() {
+		PluginManager pm = Bukkit.getPluginManager();
+		registerConfig();
+		pm.registerEvents(new InventoryClick(this), this);
+		pm.registerEvents(new PlayerJoin(this), this);
+		pm.registerEvents(new PlayerQuit(this), this);
+		pm.registerEvents(new BreakBlocks(this), this);
+		pm.registerEvents(new PlayerAttack(this), this);
+		pm.registerEvents(new InvMove(this), this);
+		pm.registerEvents(new ItemPickup(this), this);
+		this.getCommand("mod").setExecutor(new CMD_ModTools(this));
+		this.getCommand("sc").setExecutor(new CMD_StaffChat(this));
+
+	}
+
+}
