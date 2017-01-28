@@ -1,0 +1,225 @@
+package me.mehboss.modtools.methods;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import java.util.List;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Dye;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import me.mehboss.modtools.ModTools;
+
+public class InventoryClick implements Listener {
+
+	private ModTools plugin;
+
+	public InventoryClick(ModTools plugin) {
+		this.plugin = plugin;
+	}
+
+	@EventHandler
+	public void onInvClick(PlayerInteractEvent e) {
+
+		String flymode = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.Fly"));
+		String vanish = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.Vanish"));
+		String gamemode = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Messages.Gamemode"));
+		String randomteleport = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Messages.Random-Teleport"));
+		String onlinestaff = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Messages.Online-Staff"));
+		String playercolor = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Messages.Online-Staff-Color"));
+		
+// VARIABLES
+		String disabled = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Variables.disabled"));
+		String enabled = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Variables.enabled"));
+		String survival = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Variables.survival"));
+		String creative = ChatColor.translateAlternateColorCodes('&',
+				plugin.getConfig().getString("Variables.creative"));
+// VARIABLES
+
+		ItemStack stick = new ItemStack(plugin.stick);
+		ItemStack brod = new ItemStack(plugin.bRod);
+		ItemStack feather = new ItemStack(plugin.feather);
+
+		Dye dyelime = new Dye();
+		dyelime.setColor(DyeColor.LIME);
+		ItemStack greenDye = dyelime.toItemStack(1);
+
+		Dye dyegray = new Dye();
+		dyegray.setColor(DyeColor.GRAY);
+		ItemStack grayDye = dyegray.toItemStack(1);
+
+		{
+			ItemMeta Meta = greenDye.getItemMeta();
+			Meta.setDisplayName("§cVanish §7>> §cON");
+			greenDye.setItemMeta(Meta);
+		}
+		{
+			ItemMeta Meta = grayDye.getItemMeta();
+			Meta.setDisplayName("§cVanish §7>> §5OFF");
+			grayDye.setItemMeta(Meta);
+		}
+		{
+			ItemMeta Meta = stick.getItemMeta();
+			Meta.setDisplayName("§cGamemode §7>> §cSurvival");
+			stick.setItemMeta(Meta);
+		}
+		{
+			ItemMeta Meta = brod.getItemMeta();
+			Meta.setDisplayName("§cGamemode §7>> §5Creative");
+			brod.setItemMeta(Meta);
+		}
+
+		Player p = e.getPlayer();
+
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
+			if (plugin.inmod.contains(p)) {
+				/**
+				 * bRod
+				 */
+				if (p.getItemInHand().getType() == plugin.bRod.getType() && p.getGameMode() == GameMode.CREATIVE
+						|| p.getGameMode() == GameMode.ADVENTURE) {
+					if (!p.hasPermission("modtools.gm")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					p.setGameMode(GameMode.SURVIVAL);
+					p.sendMessage(plugin.prefixcolored + gamemode.replaceAll("%mode%", survival));
+					p.getInventory().setItem(0, stick);
+					/**
+					 * Stick
+					 */
+				} else if (p.getItemInHand().getType() == plugin.stick.getType() && p.getGameMode() == GameMode.SURVIVAL
+						|| p.getGameMode() == GameMode.ADVENTURE) {
+					if (!p.hasPermission("modtools.gm")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					p.setGameMode(GameMode.CREATIVE);
+					p.sendMessage(plugin.prefixcolored + gamemode.replaceAll("%mode%", creative));
+					p.setFoodLevel(25);
+					p.setHealth(20D);
+					p.getInventory().setItem(0, brod);
+					/**
+					 * Feather
+					 */
+				} else if (p.getItemInHand().getType() == plugin.feather.getType()) {
+					if (!p.hasPermission("modtools.fly")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					if (p.getAllowFlight()) {
+						p.setFlying(false);
+						p.setAllowFlight(false);
+						
+						ItemMeta Meta = feather.getItemMeta();
+						Meta.setDisplayName("§cFly §7>> §5OFF");
+						feather.setItemMeta(Meta);
+
+						p.getInventory().setItem(8, feather);
+						p.sendMessage(plugin.prefixcolored + flymode.replaceAll("%mode%", disabled));
+					} else {
+						p.setAllowFlight(true);
+						p.setFlying(true);
+						
+						ItemMeta Meta = feather.getItemMeta();
+						Meta.setDisplayName("§cFly §7>> §cON");
+						feather.setItemMeta(Meta);
+
+						p.getInventory().setItem(8, feather);
+						p.sendMessage(plugin.prefixcolored + flymode.replaceAll("%mode%", enabled));
+					}
+
+					/**
+					 * Steve
+					 */
+				} else if (p.getItemInHand().getType() == plugin.steve.getType()) {
+					if (!p.hasPermission("modtools.onlinestaff")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					List<String> list = plugin.getConfig().getStringList("Staff");
+					p.sendMessage(plugin.prefixcolored + onlinestaff);
+					for (Player pall : Bukkit.getOnlinePlayers()) {
+						if (list.contains(pall.getName())) {
+							p.sendMessage(ChatColor.translateAlternateColorCodes('&', playercolor) + pall.getName());
+						}
+					}
+					/**
+					 * Green Dye
+					 */
+				} else if (p.getItemInHand().getData().equals(grayDye.getData())) {
+					if (!p.hasPermission("modtools.vanish")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					for (Player pall : Bukkit.getOnlinePlayers()) {
+						pall.hidePlayer(p);
+					}
+					p.sendMessage(plugin.prefixcolored + vanish.replaceAll("%mode%", enabled));
+					plugin.pvanish.add(p);
+					p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 0, true, false));
+					p.getInventory().setItem(4, greenDye);
+					/**
+					 * Gray Dye
+					 */
+				} else if (p.getItemInHand().getData().equals(greenDye.getData())) {
+					if (!p.hasPermission("modtools.vanish")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+
+					for (Player pall : Bukkit.getOnlinePlayers()) {
+						pall.showPlayer(p);
+					}
+					p.removePotionEffect(PotionEffectType.INVISIBILITY);
+					p.sendMessage(plugin.prefixcolored + vanish.replaceAll("%mode%", disabled));
+					plugin.pvanish.remove(p);
+					p.getInventory().setItem(4, grayDye);
+					/**
+					 * Clock aka Watch
+					 */
+				} else if (p.getItemInHand().getType() == plugin.clock.getType()) {
+					if (!p.hasPermission("modtools.rtp")) {
+						p.sendMessage(plugin.noperm);
+						return;
+					}
+					Random r = new Random();
+					ArrayList<Player> players = new ArrayList<Player>();
+					for (Player online : Bukkit.getServer().getOnlinePlayers()) {
+						if (online == p) {	
+						} else if (Bukkit.getServer().getOnlinePlayers().size() >= 2)
+							players.add(online);
+					}
+					if (players.size() >= 1) {
+					int index = r.nextInt(players.size());
+					Player loc = (Player) players.get(index);
+					p.teleport(loc);
+					p.sendMessage(plugin.prefixcolored + randomteleport.replaceAll("%player%", loc.getName()));
+				}
+					else {
+						p.sendMessage("No players found!");
+					}
+			}
+
+		}
+
+	}
+}
+}
