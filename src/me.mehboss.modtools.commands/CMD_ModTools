@@ -16,6 +16,7 @@ import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffectType;
 
 import me.mehboss.modtools.ModTools;
+import net.md_5.bungee.api.ChatColor;
 
 public class CMD_ModTools implements CommandExecutor {
 
@@ -28,6 +29,9 @@ public class CMD_ModTools implements CommandExecutor {
 		this.plugin = plugin;
 	}
 
+	
+	public String mod = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.Mode-Mode-Toggle"));
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if (sender instanceof Player) {
@@ -135,6 +139,7 @@ public class CMD_ModTools implements CommandExecutor {
 						if (plugin.inmod.contains(p)) {
 							plugin.inmod.remove(p);
 							p.sendMessage(plugin.prefixcolored + "§7ModMode §cdisabled!");
+							p.setGameMode(GameMode.SURVIVAL);
 							p.removePotionEffect(PotionEffectType.INVISIBILITY);
 
 							for (Player pall : Bukkit.getOnlinePlayers()) {
