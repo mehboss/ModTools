@@ -1,0 +1,48 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class PlayerAttack implements Listener {
+
+	private ModTools plugin;
+
+	public PlayerAttack(ModTools plugin) {
+		this.plugin = plugin;
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageByEntityEvent e) {
+
+		/**
+		 * Player Attack Player
+		 */
+		if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+			if (plugin.inmod.contains(e.getDamager()) || plugin.inmod.contains(e.getEntity())) {
+				e.setCancelled(true);
+			}
+
+			/**
+			 * Player Attack Entity
+			 */
+		}
+			else if (e.getDamager() instanceof Player && !(e.getEntity() instanceof Player)) {
+				if (plugin.inmod.contains(e.getDamager())) {
+					e.setCancelled(true);
+				}
+			}
+
+			/**
+			 * Entity Attack Player
+			 */
+			else if (e.getEntity() instanceof Player && !(e.getDamager() instanceof Player)) {
+				if (plugin.inmod.contains(e.getEntity())) {
+					e.setCancelled(true);
+				}
+			}
+		}
+	}
