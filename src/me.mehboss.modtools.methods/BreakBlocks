@@ -1,0 +1,26 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class BreakBlocks implements Listener{
+
+	private ModTools plugin;
+	
+	public BreakBlocks(ModTools plugin) {
+		this.plugin = plugin;
+	}
+	
+	@EventHandler
+	 public void onBlockBreak(BlockBreakEvent e) {
+		Player p = e.getPlayer();
+		
+		if (plugin.inmod.contains(p)) {
+			e.setCancelled(true);
+	}
+}
+}
