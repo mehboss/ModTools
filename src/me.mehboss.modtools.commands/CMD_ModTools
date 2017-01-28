@@ -1,0 +1,207 @@
+package me.mehboss.modtools.commands;
+
+import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
+import org.bukkit.GameMode;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Dye;
+import org.bukkit.potion.PotionEffectType;
+
+import me.mehboss.modtools.ModTools;
+
+public class CMD_ModTools implements CommandExecutor {
+
+	private HashMap<String, ItemStack[]> Inventory = new HashMap<String, ItemStack[]>();
+	private HashMap<String, ItemStack[]> inventoryArmorContents = new HashMap<String, ItemStack[]>();
+
+	private ModTools plugin;
+
+	public CMD_ModTools(ModTools plugin) {
+		this.plugin = plugin;
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+		if (sender instanceof Player) {
+			Player p = (Player) sender;
+			ItemStack steve = new ItemStack(plugin.steve);
+			ItemStack stick = new ItemStack(plugin.stick);
+			ItemStack brod = new ItemStack(plugin.bRod);
+			ItemStack clock = new ItemStack(plugin.clock);
+			ItemStack feather = new ItemStack(plugin.feather);
+			steve.setDurability((short) 3);
+
+			Dye dye = new Dye();
+			dye.setColor(DyeColor.GRAY);
+			ItemStack grayDye = dye.toItemStack(1);
+
+			{
+				ItemMeta Meta = grayDye.getItemMeta();
+				Meta.setDisplayName("§cVanish §7>> §5OFF");
+				grayDye.setItemMeta(Meta);
+			}
+			{
+				ItemMeta Meta = steve.getItemMeta();
+				Meta.setDisplayName("§cOnline Staff");
+				steve.setItemMeta(Meta);
+			}
+			{
+				ItemMeta Meta = stick.getItemMeta();
+				Meta.setDisplayName("§cGamemode §7>> §cSurvival");
+				stick.setItemMeta(Meta);
+			}
+			{
+				ItemMeta Meta = brod.getItemMeta();
+				Meta.setDisplayName("§cGamemode §7>> §5Creative");
+				brod.setItemMeta(Meta);
+			}
+			{
+				ItemMeta Meta = clock.getItemMeta();
+				Meta.setDisplayName("§cRandom Teleport");
+				clock.setItemMeta(Meta);
+			}
+			if (p.getAllowFlight()) {
+				ItemMeta Meta = feather.getItemMeta();
+				Meta.setDisplayName("§cFly §7>> §cON");
+				feather.setItemMeta(Meta);
+			} else {
+				ItemMeta Meta = feather.getItemMeta();
+				Meta.setDisplayName("§cFly §7>> §5OFF");
+				feather.setItemMeta(Meta);
+			}
+
+			if (args.length == 0) {
+				if (!p.hasPermission("modtools.mod")) {
+					p.sendMessage(plugin.noperm);
+				} else {
+
+					if (!plugin.inmod.contains(p)) {
+						plugin.inmod.add(p);
+
+						this.Inventory.put(p.getName(), copyInventory(p.getInventory()));
+
+						if (p.getInventory().getArmorContents() != null) {
+							inventoryArmorContents.put(p.getName(), p.getInventory().getArmorContents());
+						}
+
+						if (p.getInventory().getContents() != null && p.getInventory().getArmorContents() != null) {
+							p.getInventory().setArmorContents(null);
+							p.getInventory().clear();
+
+							if (p.getGameMode().equals(GameMode.SURVIVAL)
+									|| p.getGameMode().equals(GameMode.ADVENTURE)) {
+								p.getInventory().setItem(0, stick);
+
+							} else {
+								p.getInventory().setItem(0, brod);
+							}
+							p.getInventory().setItem(2, steve);
+							p.getInventory().setItem(4, grayDye);
+							p.getInventory().setItem(6, clock);
+							p.getInventory().setItem(8, feather);
+							p.sendMessage(plugin.prefixcolored + "§7ModMode §2enabled!");
+							/**
+							 * if inventory is not empty but armor contents are
+							 */
+						} else if (p.getInventory().getContents() != null
+								&& p.getInventory().getArmorContents() == null) {
+							p.getInventory().clear();
+
+							if (p.getGameMode().equals(GameMode.SURVIVAL)
+									|| p.getGameMode().equals(GameMode.ADVENTURE)) {
+								p.getInventory().setItem(0, stick);
+
+							} else {
+								p.getInventory().setItem(0, brod);
+							}
+							p.getInventory().setItem(2, steve);
+							p.getInventory().setItem(4, grayDye);
+							p.getInventory().setItem(6, clock);
+							p.getInventory().setItem(8, feather);
+							p.sendMessage(plugin.prefixcolored + "§7ModMode §2enabled!");
+						}
+					} else {
+						/**
+						 * if inventory and armor contents are not empty
+						 */
+						if (plugin.inmod.contains(p)) {
+							plugin.inmod.remove(p);
+							p.sendMessage(plugin.prefixcolored + "§7ModMode §cdisabled!");
+							p.removePotionEffect(PotionEffectType.INVISIBILITY);
+
+							for (Player pall : Bukkit.getOnlinePlayers()) {
+								pall.showPlayer(p);
+							}
+
+							p.getInventory().setItem(4, grayDye);
+							if (p.getInventory().getContents() != null && p.getInventory().getArmorContents() != null) {
+								p.getInventory().setArmorContents(null);
+								p.getInventory().clear();
+								ItemStack[] savedInventory = this.Inventory.remove(p.getName());
+								if (savedInventory == null) {
+									return false;
+								} else {
+									restoreInventory(p, savedInventory);
+									p.getInventory().setArmorContents(inventoryArmorContents.get(p.getName()));
+
+								}
+								/**
+								 * if inventory is not empty but armor contents
+								 * are
+								 */
+							} else if (p.getInventory().getContents() != null
+									&& p.getInventory().getArmorContents() == null) {
+								p.getInventory().clear();
+								ItemStack[] savedInventory = this.Inventory.remove(p.getName());
+								if (savedInventory == null) {
+									return false;
+								} else {
+									restoreInventory(p, savedInventory);
+									p.getInventory().setArmorContents(inventoryArmorContents.get(p.getName()));
+
+								}
+								/**
+								 * if inventory and armor contents are both
+								 * empty
+								 */
+							} else if (p.getInventory().getContents() == null
+									&& p.getInventory().getArmorContents() == null) {
+								ItemStack[] savedInventory = this.Inventory.remove(p.getName());
+								if (savedInventory == null) {
+									return false;
+								} else {
+									restoreInventory(p, savedInventory);
+									p.getInventory().setArmorContents(inventoryArmorContents.get(p.getName()));
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private ItemStack[] copyInventory(Inventory inv) {
+		ItemStack[] original = inv.getContents();
+		ItemStack[] copy = new ItemStack[original.length];
+		for (int i = 0; i < original.length; ++i)
+			if (original != null)
+				copy = original;
+
+		return copy;
+	}
+
+	private void restoreInventory(Player p, ItemStack[] inventory) {
+		p.getInventory().setContents(inventory);
+	}
+}
