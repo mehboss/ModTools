@@ -1,0 +1,27 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class InvMove implements Listener{
+	
+	private ModTools plugin;
+
+	public InvMove(ModTools plugin) {
+		this.plugin = plugin;
+	}
+	
+	@EventHandler
+	public void onclickinv(InventoryClickEvent e) {
+		HumanEntity p = e.getWhoClicked();
+		
+		if (plugin.inmod.contains(p)) {
+			e.setCancelled(true);
+			
+		}
+	}
+}
