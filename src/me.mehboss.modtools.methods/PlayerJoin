@@ -1,0 +1,27 @@
+package me.mehboss.modtools.methods;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+
+import me.mehboss.modtools.ModTools;
+
+public class PlayerJoin implements Listener {
+	
+	private ModTools plugin;
+	
+	public PlayerJoin(ModTools plugin) {
+		this.plugin = plugin;
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent e) {
+		Player p = e.getPlayer();
+		
+			for(Player pvanish : plugin.pvanish){
+				p.hidePlayer(pvanish);
+		}
+	}
+
+}
